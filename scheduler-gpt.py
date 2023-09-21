@@ -86,8 +86,13 @@ def run_fifo():
     # Increment time
     time += 1
 
+# Initialize a global variable to keep track of the previous running process
+previous_running_process = None
+
 def run_sjf():
     global time
+    global previous_running_process  # Access the global variable
+
     running_process = None
 
     # Check if there are any processes that have arrived but not started yet
@@ -98,9 +103,9 @@ def run_sjf():
         running_process = min(eligible_processes, key=lambda x: x.remaining_time)
 
         # If the running process has changed, print a selection message
-        if running_process != run_sjf.previous_running_process:
+        if running_process != previous_running_process:
             print(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
-            run_sjf.previous_running_process = running_process
+            previous_running_process = running_process
 
         running_process.remaining_time -= 1
 
