@@ -78,7 +78,34 @@ def run_fifo():
     time += 1
 
 def run_sjf():
-    pass  # Implement Preemptive SJF scheduling here
+    global time
+    running_process = None
+
+    # Check if there are any processes that have arrived but not started yet
+    eligible_processes = [process for process in processes if process.arrival_time <= time and process.status == "Ready"]
+
+    if eligible_processes:
+        # Find the process with the shortest remaining burst time
+        running_process = min(eligible_processes, key=lambda x: x.remaining_time)
+
+        # If the running process has changed, print a selection message
+        if running_process != run_sjf.previous_running_process:
+            print(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
+            run_sjf.previous_running_process = running_process
+
+        running_process.remaining_time -= 1
+
+        # Check if the process has finished executing
+        if running_process.remaining_time == 0:
+            running_process.status = "Finished"
+            running_process.turnaround_time = time - running_process.arrival_time
+            running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
+            print(f"Time {time:4} : {running_process.name} finished")
+    else:
+        print(f"Time {time:4} : Idle")
+
+    # Increment time
+    time += 1
 
 def run_rr():
     pass  # Implement Round Robin scheduling here
