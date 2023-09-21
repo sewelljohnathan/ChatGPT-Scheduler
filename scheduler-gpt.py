@@ -38,8 +38,8 @@ for line in lines:
         run_for = int(tokens[1])
     elif directive == "use":
         algorithm = tokens[1]
-        if algorithm == "rr":
-            quantum = int(tokens[3])
+    elif directive == "quantum":  # Check for quantum directive
+        quantum = int(tokens[1])  # Extract the quantum value
     elif directive == "process":
         name = tokens[2]
         arrival_time = int(tokens[4])
