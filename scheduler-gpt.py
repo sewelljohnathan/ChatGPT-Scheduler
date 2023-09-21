@@ -51,7 +51,31 @@ processes.sort(key=lambda x: x.arrival_time)
 
 # Define scheduler functions
 def run_fifo():
-    pass  # Implement FIFO scheduling here
+    global time
+    running_process = None
+
+    # Check if there are any processes that have arrived but not started yet
+    for process in processes:
+        if process.arrival_time <= time and process.status == "Ready":
+            running_process = process
+            break
+
+    if running_process is not None:
+        running_process.status = "Running"
+        print(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
+        running_process.remaining_time -= 1
+
+        # Check if the process has finished executing
+        if running_process.remaining_time == 0:
+            running_process.status = "Finished"
+            running_process.turnaround_time = time - running_process.arrival_time
+            running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
+            print(f"Time {time:4} : {running_process.name} finished")
+    else:
+        print(f"Time {time:4} : Idle")
+
+    # Increment time
+    time += 1
 
 def run_sjf():
     pass  # Implement Preemptive SJF scheduling here
@@ -75,7 +99,28 @@ while time < run_for:
 
 # Calculate and print results
 def calculate_metrics():
-    pass  # Implement metric calculations here
+    total_turnaround_time = 0
+    total_waiting_time = 0
+    total_response_time = 0
+
+    for process in processes:
+        if process.status == "Finished":
+            total_turnaround_time += process.turnaround_time
+            total_waiting_time += process.waiting_time
+            total_response_time += process.response_time
+
+    print(f"Finished at time {time}")
+    print()
+
+    for process in processes:
+        if process.status != "Finished":
+            print(f"{process.name} did not finish")
+
+    print()
+
+    for process in processes:
+        if process.status == "Finished":
+            print(f"{process.name} wait {process.waiting_time:4} turnaround {process.turnaround_time:4} response {process.response_time:4}")
 
 calculate_metrics()
 
