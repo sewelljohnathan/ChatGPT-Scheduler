@@ -108,7 +108,36 @@ def run_sjf():
     time += 1
 
 def run_rr():
-    pass  # Implement Round Robin scheduling here
+    global time
+    running_process = None
+
+    # Check if there are any processes that have arrived but not started yet
+    eligible_processes = [process for process in processes if process.arrival_time <= time and process.status == "Ready"]
+
+    if eligible_processes:
+        # Select the next process to run based on RR scheduling
+        running_process = eligible_processes[0]
+
+        if running_process.remaining_time > quantum:
+            print(f"Time {time:4} : {running_process.name} selected (burst {quantum:4})")
+            running_process.remaining_time -= quantum
+        else:
+            print(f"Time {time:4} : {running_process.name} selected (burst {running_process.remaining_time:4})")
+            running_process.remaining_time = 0
+            running_process.status = "Finished"
+            running_process.turnaround_time = time - running_process.arrival_time
+            running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
+            print(f"Time {time:4} : {running_process.name} finished")
+    else:
+        print(f"Time {time:4} : Idle")
+
+    # Rotate the processes in the queue
+    if running_process is not None and running_process.remaining_time > 0:
+        eligible_processes.remove(running_process)
+        eligible_processes.append(running_process)
+
+    # Increment time
+    time += 1
 
 # Main scheduling loop
 while time < run_for:
