@@ -28,6 +28,7 @@ with open(input_file, 'r') as file:
     lines = file.readlines()
 
 # Parse input
+end_of_directives = False  # Flag to track the end of directives
 for line in lines:
     tokens = line.strip().split()
     directive = tokens[0]
@@ -45,6 +46,14 @@ for line in lines:
         arrival_time = int(tokens[4])
         burst_time = int(tokens[6])
         processes.append(Process(name, arrival_time, burst_time))
+    elif directive == "end":  # Check for the end directive
+        end_of_directives = True
+        break  # Exit the loop if "end" is encountered
+
+# Check if the end of directives is reached
+if not end_of_directives:
+    print("Error: Missing 'end' directive.")
+    sys.exit(1)
 
 # Sort processes by arrival time
 processes.sort(key=lambda x: x.arrival_time)
