@@ -83,8 +83,6 @@ def run_fifo():
     else:
         print(f"Time {time:4} : Idle")
 
-    # Increment time
-    time += 1
 
 # Initialize a global variable to keep track of the previous running process
 previous_running_process = None
@@ -118,8 +116,6 @@ def run_sjf():
     else:
         print(f"Time {time:4} : Idle")
 
-    # Increment time
-    time += 1
 
 def run_rr():
     global time
@@ -150,8 +146,6 @@ def run_rr():
         eligible_processes.remove(running_process)
         eligible_processes.append(running_process)
 
-    # Increment time
-    time += 1
 
 # Main scheduling loop
 while time < run_for:
