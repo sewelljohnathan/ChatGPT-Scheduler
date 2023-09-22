@@ -104,6 +104,8 @@ def run_sjf():
     if eligible_processes:
         # Find the process with the shortest remaining burst time
         running_process = min(eligible_processes, key=lambda x: x.remaining_time)
+        if running_process.response_time is None:
+            running_process.response_time = time - process.arrival_time
 
         # If the running process has changed, print a selection message
         if running_process != previous_running_process:
@@ -115,7 +117,7 @@ def run_sjf():
         # Check if the process has finished executing
         if running_process.remaining_time == 0:
             running_process.status = "Finished"
-            running_process.turnaround_time = time - running_process.arrival_time
+            running_process.turnaround_time = time + 1 - running_process.arrival_time
             running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
             print(f"Time {time+1:4} : {running_process.name} finished")
     else:
