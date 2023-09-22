@@ -24,6 +24,8 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 input_file = sys.argv[1]
+output = []
+
 with open(input_file, 'r') as file:
     lines = file.readlines()
 
@@ -99,7 +101,7 @@ def run_sjf():
     # Print a message for each arriving process
     for process in eligible_processes:
         if process.arrival_time == time:
-            print(f"Time {time:4} : {process.name} arrived") 
+            output.append(f"Time {time:4} : {process.name} arrived") 
 
     if eligible_processes:
         # Find the process with the shortest remaining burst time
@@ -109,7 +111,7 @@ def run_sjf():
 
         # If the running process has changed, print a selection message
         if running_process != previous_running_process:
-            print(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
+            output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
             previous_running_process = running_process
 
         running_process.remaining_time -= 1
@@ -119,9 +121,9 @@ def run_sjf():
             running_process.status = "Finished"
             running_process.turnaround_time = time + 1 - running_process.arrival_time
             running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
-            print(f"Time {time+1:4} : {running_process.name} finished")
+            output.append(f"Time {time+1:4} : {running_process.name} finished")
     else:
-        print(f"Time {time:4} : Idle")
+        output.append(f"Time {time:4} : Idle")
 
 
 def run_rr():
@@ -154,8 +156,8 @@ def run_rr():
         eligible_processes.append(running_process)
 
 # Print the number of processes and the selected algorithm
-print(f"{process_count} processes")
-print(f"Using {algorithm}")
+output.append(f"{process_count} processes")
+output.append(f"Using {algorithm}")
 
 # Main scheduling loop
 while time < run_for:
@@ -183,22 +185,22 @@ def calculate_metrics():
             total_waiting_time += process.waiting_time
             total_response_time += process.response_time
 
-    print(f"Finished at time {time}")
-    print()
+    output.append(f"Finished at time {time}")
+    output.append("")
 
     for process in processes:
         if process.status != "Finished":
-            print(f"{process.name} did not finish")
+            output.append(f"{process.name} did not finish")
 
-    print()
+    output.append("")
 
     for process in processes:
         if process.status == "Finished":
-            print(f"{process.name} wait {process.waiting_time:4} turnaround {process.turnaround_time:4} response {process.response_time:4}")
+            output.append(f"{process.name} wait {process.waiting_time:4} turnaround {process.turnaround_time:4} response {process.response_time:4}")
 
 calculate_metrics()
 
 # Write output to a file
 output_file = input_file.replace(".in", ".out")
 with open(output_file, 'w') as file:
-    pass  # Implement output writing here
+    file.write('\n'.join(output))
