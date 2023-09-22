@@ -125,17 +125,21 @@ def run_sjf():
     else:
         output.append(f"Time {time:4} : Idle")
 
-
+rr_processes = []
+rr_queueIndex = 0
 def run_rr():
     global time
     running_process = None
 
     # Check if there are any processes that have arrived but not started yet
-    eligible_processes = [process for process in processes if process.arrival_time <= time and process.status == "Ready"]
+    rr_processes += [process for process in processes if process.arrival_time == time]
+    eligible_processes = [process for process in rr_processes if process.status == "Ready"]
 
     if eligible_processes:
         # Select the next process to run based on RR scheduling
-        running_process = eligible_processes[0]
+        rr_queueIndex %= len(eligible_processes)
+        running_process = eligible_processes[rr_queueIndex]
+        rr_queueIndex += 1
 
         if running_process.remaining_time > quantum:
             print(f"Time {time:4} : {running_process.name} selected (burst {quantum:4})")
@@ -149,11 +153,6 @@ def run_rr():
             print(f"Time {time + 1:4} : {running_process.name} finished")
     else:
         print(f"Time {time:4} : Idle")
-
-    # Rotate the processes in the queue
-    if running_process is not None and running_process.remaining_time > 0:
-        eligible_processes.remove(running_process)
-        eligible_processes.append(running_process)
 
 # Print the number of processes and the selected algorithm
 output.append(f"{process_count} processes")
