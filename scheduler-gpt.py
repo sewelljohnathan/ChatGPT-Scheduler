@@ -96,6 +96,11 @@ def run_sjf():
     # Check if there are any processes that have arrived but not started yet
     eligible_processes = [process for process in processes if process.arrival_time <= time and process.status == "Ready"]
 
+    # Print a message for each arriving process
+    for process in eligible_processes:
+        if process.arrival_time == time:
+            print(f"Time {time:4} : {process.name} arrived")
+
     if eligible_processes:
         # Find the process with the shortest remaining burst time
         running_process = min(eligible_processes, key=lambda x: x.remaining_time)
