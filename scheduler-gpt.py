@@ -77,7 +77,7 @@ def run_fifo():
         # Check if the process has finished executing
         if running_process.remaining_time == 0:
             running_process.status = "Finished"
-            running_process.turnaround_time = time - running_process.arrival_time
+            running_process.turnaround_time = time + 1 - running_process.arrival_time
             running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
             print(f"Time {time:4} : {running_process.name} finished")
     else:
@@ -142,7 +142,7 @@ def run_rr():
             print(f"Time {time:4} : {running_process.name} selected (burst {running_process.remaining_time:4})")
             running_process.remaining_time = 0
             running_process.status = "Finished"
-            running_process.turnaround_time = time - running_process.arrival_time
+            running_process.turnaround_time = time + 1 - running_process.arrival_time
             running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
             print(f"Time {time:4} : {running_process.name} finished")
     else:
