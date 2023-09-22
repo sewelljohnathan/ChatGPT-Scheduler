@@ -112,7 +112,7 @@ def run_sjf():
             running_process.status = "Finished"
             running_process.turnaround_time = time - running_process.arrival_time
             running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
-            print(f"Time {time:4} : {running_process.name} finished")
+            print(f"Time {time+1:4} : {running_process.name} finished")
     else:
         print(f"Time {time:4} : Idle")
 
