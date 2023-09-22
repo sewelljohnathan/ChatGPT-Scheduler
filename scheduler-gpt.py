@@ -158,6 +158,8 @@ def run_rr():
 # Print the number of processes and the selected algorithm
 output.append(f"{process_count} processes")
 output.append(f"Using {algorithm}")
+if algorithm == "rr":
+    output.append(f"Quantum {quantum}")
 
 # Main scheduling loop
 while time < run_for:
