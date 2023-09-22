@@ -99,7 +99,7 @@ def run_sjf():
     # Print a message for each arriving process
     for process in eligible_processes:
         if process.arrival_time == time:
-            print(f"Time {time:4} : {process.name} arrived")
+            print(f"Time {time:4} : {process.name} arrived") 
 
     if eligible_processes:
         # Find the process with the shortest remaining burst time
@@ -151,6 +151,9 @@ def run_rr():
         eligible_processes.remove(running_process)
         eligible_processes.append(running_process)
 
+# Print the number of processes and the selected algorithm
+print(f"{process_count} processes")
+print(f"Using {algorithm}")
 
 # Main scheduling loop
 while time < run_for:
