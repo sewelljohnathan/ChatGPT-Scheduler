@@ -4,7 +4,7 @@ for input in ./tests/*.in; do
     tmp=$(mktemp)
     cp "$output" "$tmp"
     
-    ./scheduler-gpt.py "$input"
+    python scheduler-gpt.py "$input"
     diff "$output" "$tmp"
 
     cp "$tmp" "$output"
