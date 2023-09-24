@@ -62,36 +62,40 @@ if not end_of_directives:
 # Sort processes by arrival time
 processes.sort(key=lambda x: x.arrival_time)
 
+# Initialize a global variable to keep track of the previous running process
+previous_running_process = None
+
 # Define scheduler functions
 def run_fifo():
-    global time
-    running_process = None
+    global time, previous_running_process
 
-    # Check if there are any processes that have arrived but not started yet
-    for process in processes:
-        if process.arrival_time <= time and process.status == "Ready":
-            running_process = process
-            break
+    eligible_processes = [process for process in processes if process.arrival_time <= time and process.status == "Ready"]
+    if eligible_processes:
 
-    if running_process is not None:
-        running_process.status = "Running"
-        print(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
+        # Get first in process
+        running_process = eligible_processes[0]
+
+        if running_process.response_time is None:
+            running_process.response_time = time - running_process.arrival_time
+
+        if running_process != previous_running_process:
+            output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
+            previous_running_process = running_process
+
         running_process.remaining_time -= 1
 
-        # Check if the process has finished executing
+        # Finish
         if running_process.remaining_time == 0:
             running_process.status = "Finished"
             running_process.turnaround_time = time + 1 - running_process.arrival_time
             running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
-            print(f"Time {time + 1:4} : {running_process.name} finished")
-    else:
-        print(f"Time {time:4} : Idle")
+            output.append(f"Time {time + 1:4} : {running_process.name} finished")
 
+    else:
+        output.append(f"Time {time:4} : Idle")
+    
     time += 1
 
-
-# Initialize a global variable to keep track of the previous running process
-previous_running_process = None
 
 def run_sjf():
     global time
@@ -173,7 +177,7 @@ if algorithm == "rr":
 
 # Main scheduling loop
 while time < run_for:
-    if algorithm == "fcfs":
+    if algorithm == "fifo":
         run_fifo()
     elif algorithm == "sjf":
         run_sjf()
