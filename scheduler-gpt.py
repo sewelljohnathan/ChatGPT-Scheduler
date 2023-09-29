@@ -66,10 +66,16 @@ processes.sort(key=lambda x: x.arrival_time)
 previous_running_process = None
 
 # Define scheduler functions
-def run_fifo():
+def run_fcfs():
     global time, previous_running_process
 
     eligible_processes = [process for process in processes if process.arrival_time <= time and process.status == "Ready"]
+
+    # Print a message for each arriving process
+    for process in eligible_processes:
+        if process.arrival_time == time:
+            output.append(f"Time {time:4} : {process.name} arrived") 
+
     if eligible_processes:
 
         # Get first in process
@@ -136,33 +142,32 @@ def run_sjf():
     time += 1
 
 rr_processes = []
-rr_queueIndex = 0
 def run_rr():
     global time, rr_processes, rr_queueIndex
     running_process = None
 
     # Check if there are any processes that have arrived but not started yet
     rr_processes += [process for process in processes if process not in rr_processes and process.arrival_time <= time]
-    eligible_processes = [process for process in rr_processes if process.status == "Ready"]
-    if eligible_processes:
-        # Select the next process to run based on RR scheduling
-        rr_queueIndex %= len(eligible_processes)
-        running_process = eligible_processes[rr_queueIndex]
-        rr_queueIndex += 1
+    if len(rr_processes) > 0:
+
+        running_process = rr_processes[0]
+        rr_processes.remove(running_process)
 
         if running_process.response_time is None:
             running_process.response_time = time - running_process.arrival_time
+            output.append(f"Time {time:4} : {running_process.name} arrived") 
 
         if running_process.remaining_time > quantum:
             output.append(f"Time {time:4} : {running_process.name} selected (burst {quantum:4})")
             running_process.remaining_time -= quantum
+            rr_processes.append(running_process)
         else:
             output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.remaining_time:4})")
             output.append(f"Time {time + running_process.remaining_time:4} : {running_process.name} finished")
-            running_process.remaining_time = 0
             running_process.status = "Finished"
-            running_process.turnaround_time = time + quantum - running_process.arrival_time
+            running_process.turnaround_time = time + running_process.remaining_time - running_process.arrival_time
             running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
+            running_process.remaining_time = 0
             
     else:
         output.append(f"Time {time:4} : Idle")
@@ -177,8 +182,8 @@ if algorithm == "rr":
 
 # Main scheduling loop
 while time < run_for:
-    if algorithm == "fifo":
-        run_fifo()
+    if algorithm == "fcfs":
+        run_fcfs()
     elif algorithm == "sjf":
         run_sjf()
     elif algorithm == "rr":
@@ -189,15 +194,6 @@ while time < run_for:
 
 # Calculate and print results
 def calculate_metrics():
-    total_turnaround_time = 0
-    total_waiting_time = 0
-    total_response_time = 0
-
-    for process in processes:
-        if process.status == "Finished":
-            total_turnaround_time += process.turnaround_time
-            total_waiting_time += process.waiting_time
-            total_response_time += process.response_time
 
     output.append(f"Finished at time {time}")
     output.append("")
