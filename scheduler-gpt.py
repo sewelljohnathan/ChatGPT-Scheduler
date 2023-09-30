@@ -85,7 +85,7 @@ def run_fcfs():
             running_process.response_time = time - running_process.arrival_time
 
         if running_process != previous_running_process:
-            output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
+            output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.remaining_time:4})")
             previous_running_process = running_process
 
         running_process.remaining_time -= 1
@@ -125,7 +125,7 @@ def run_sjf():
 
         # If the running process has changed, print a selection message
         if running_process != previous_running_process:
-            output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.burst_time:4})")
+            output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.remaining_time:4})")
             previous_running_process = running_process
 
         running_process.remaining_time -= 1
@@ -141,38 +141,50 @@ def run_sjf():
 
     time += 1
 
-rr_processes = []
+rr_processes = [process for process in processes if process.arrival_time == 0]
+quantum_timer = 0
 def run_rr():
-    global time, rr_processes, rr_queueIndex
+    global time, rr_processes, previous_running_process, quantum_timer
     running_process = None
 
+    for process in [p for p in processes if p.arrival_time <= time and p.response_time is None]:
+        output.append(f"Time {process.arrival_time:4} : {process.name} arrived") 
+
     # Check if there are any processes that have arrived but not started yet
-    rr_processes += [process for process in processes if process not in rr_processes and process.arrival_time <= time]
     if len(rr_processes) > 0:
 
-        running_process = rr_processes[0]
-        rr_processes.remove(running_process)
+        if previous_running_process is None or previous_running_process.status == "Finished" or quantum_timer % quantum == 0:
+            running_process = rr_processes[0]
+        else:
+            running_process = previous_running_process
+
+        if running_process != previous_running_process or quantum_timer % quantum == 0:
+            output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.remaining_time:4})")
 
         if running_process.response_time is None:
             running_process.response_time = time - running_process.arrival_time
-            output.append(f"Time {time:4} : {running_process.name} arrived") 
 
-        if running_process.remaining_time > quantum:
-            output.append(f"Time {time:4} : {running_process.name} selected (burst {quantum:4})")
-            running_process.remaining_time -= quantum
-            rr_processes.append(running_process)
-        else:
-            output.append(f"Time {time:4} : {running_process.name} selected (burst {running_process.remaining_time:4})")
-            output.append(f"Time {time + running_process.remaining_time:4} : {running_process.name} finished")
+        previous_running_process = running_process
+
+        quantum_timer += 1
+        running_process.remaining_time -= 1
+
+        if running_process.remaining_time == 0:
+            output.append(f"Time {time + 1:4} : {running_process.name} finished")
             running_process.status = "Finished"
-            running_process.turnaround_time = time + running_process.remaining_time - running_process.arrival_time
+            running_process.turnaround_time = time + 1 - running_process.arrival_time
             running_process.waiting_time = running_process.turnaround_time - running_process.burst_time
-            running_process.remaining_time = 0
+            quantum_timer = 0
+
+        rr_processes += [process for process in processes if process not in rr_processes and process.arrival_time <= time + 1 and process.status == "Ready"]
+        rr_processes.remove(running_process)
+        if running_process.status == "Ready":
+            rr_processes.append(running_process)
             
     else:
         output.append(f"Time {time:4} : Idle")
 
-    time += quantum
+    time += 1
 
 # Print the number of processes and the selected algorithm
 output.append(f"{process_count} processes")
